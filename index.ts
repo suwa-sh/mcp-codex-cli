@@ -94,7 +94,16 @@ export const ChatParametersSchema = z.object({
 // Tool execution functions
 export async function chat(args: unknown) {
   const parsedArgs = ChatParametersSchema.parse(args);
-  const codexCliCmd = await decideCodexCliCommand();
+
+  // Check if codex-cli is available at runtime
+  let codexCliCmd: { command: string; initialArgs: string[] };
+  try {
+    codexCliCmd = await decideCodexCliCommand();
+  } catch (error) {
+    throw new Error(
+      `Codex CLI is not installed or not found in PATH. Please install it using: npm install -g @openai/codex. Error: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 
   const cliArgs: string[] = [];
 
@@ -130,19 +139,6 @@ export async function chat(args: unknown) {
 }
 
 async function main() {
-  // Check if codex-cli is available at startup
-  try {
-    await decideCodexCliCommand();
-  } catch (error) {
-    console.error(
-      `Error: ${error instanceof Error ? error.message : String(error)}`,
-    );
-    console.error(
-      "Please install codex-cli globally using: npm install -g @openai/codex",
-    );
-    process.exit(1);
-  }
-
   const server = new McpServer({
     name: "mcp-codex-cli",
     version: "0.1.0",
@@ -175,15 +171,27 @@ async function main() {
       },
     },
     async (args) => {
-      const result = await chat(args);
-      return {
-        content: [
-          {
-            type: "text",
-            text: result,
-          },
-        ],
-      };
+      try {
+        const result = await chat(args);
+        return {
+          content: [
+            {
+              type: "text",
+              text: result,
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
+          isError: true,
+        };
+      }
     },
   );
 

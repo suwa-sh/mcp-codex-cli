@@ -161,7 +161,7 @@ GitHub Releasesでリリースノートを作成：
 npm run dev
 
 # chatツールの動作確認（テストスクリプト使用）
-node --import tsx test-dev.js
+node --import tsx tests/test-dev.js
 
 # Codex CLI直接テスト
 codex -m gpt-5 exec "Hello World"
