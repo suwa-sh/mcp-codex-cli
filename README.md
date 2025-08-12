@@ -3,23 +3,18 @@
 [![npm version](https://badge.fury.io/js/mcp-codex-cli.svg)](https://www.npmjs.com/package/mcp-codex-cli)
 [![Publish to npm](https://github.com/suwa-sh/mcp-codex-cli/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/suwa-sh/mcp-codex-cli/actions/workflows/npm-publish.yml)
 
-OpenAI の Codex CLI のシンプルな MCP サーバーラッパーです。AI アシスタントが Model Context Protocol を通じて Codex のコーディング機能を使用できるようにします。
+OpenAI の Codex CLI のシンプルな MCP サーバーラッパーです。AI アシスタントが Model Context Protocol を通じて Codex の機能を使用できるようにします。
 
-**特徴:**
+## 特徴
+
 - 非インタラクティブ（exec）モードのみ対応で、MCP 環境に最適化
 - シンプルな1つのチャットツールを提供
 - TypeScript + Zod によるスキーマ検証
 - 高速・軽量なテスト構成
 
-## 概要
-
-このサーバーは、Codex CLI と対話する 1 つのツールを提供します：
-
-- `chat`: コード生成、リファクタリング、解析、デバッグなど、あらゆるコーディングタスクを実行
-
 ## 前提条件
 
-- [OpenAI Codex CLI](https://github.com/openai/codex-cli) がインストール・設定済み（--allow-install フラグでオプション）
+- [OpenAI Codex CLI](https://github.com/openai/codex-cli) がインストール・設定済み
 - OpenAI API キーまたは ChatGPT Plus/Pro/Team アカウント
 - Node.js 22+（Codex CLI の要件）
 
@@ -28,59 +23,19 @@ OpenAI の Codex CLI のシンプルな MCP サーバーラッパーです。AI 
 ### 1. Add the MCP server
 
 ```bash
-claude mcp add -s project codex-cli -- npx mcp-codex-cli --allow-install
+claude mcp add -s project codex-cli -- npx mcp-codex-cli
 ```
-
-または、以下のインストールオプションセクションに示される設定で MCP クライアントを設定してください。
-
-### 2. Try it out
-
-例となるプロンプト：
-
-- **リファクタリング**: "このコンポーネントを React hooks を使うようリファクタリングして"
-- **コード解析**: "認証モジュールを解析して JWT トークンの処理方法を説明して"  
-- **デバッグ**: "ユーザー登録フローで発生するこの TypeError をデバッグして"
-- **コード生成**: "バリデーション付きのユーザープロフィールデータ用 TypeScript インターフェースを生成して"
 
 ## 🔧 Installation Options
 
-### Using npx with --allow-install flag
+### Using npx
 
 ```json
 {
   "mcpServers": {
     "mcp-codex-cli": {
       "command": "npx",
-      "args": ["mcp-codex-cli", "--allow-install"]
-    }
-  }
-}
-```
-
-### Local Development
-
-1. クローンとインストール：
-
-```bash
-git clone https://github.com/suwa-sh/mcp-codex-cli
-cd mcp-codex-cli
-npm install
-```
-
-2. プロジェクトをビルド：
-
-```bash
-npm run build
-```
-
-3. Claude Desktop の設定に追加：
-
-```json
-{
-  "mcpServers": {
-    "mcp-codex-cli": {
-      "command": "node",
-      "args": ["/path/to/mcp-codex-cli/dist/index.js", "--allow-install"]
+      "args": ["mcp-codex-cli"]
     }
   }
 }
@@ -156,8 +111,6 @@ codex auth login
 
 - **auto-edit**：ファイルの読み取りと書き込み；シェルコマンドには承認が必要（デフォルト）
 - **full-auto**：完全に自動実行（注意して使用）
-
-> **注意:** インタラクティブモードと "suggest" 承認レベルは MCP 環境での制約により廃止されました。
 
 ## 🔗 Related Links
 

@@ -44,7 +44,6 @@ graph TB
     subgraph ExternalSystems ["External Systems"]
         StdioTransport["StdioServerTransport<br/>@modelcontextprotocol/sdk"]
         CodexCLI["Codex CLI Binary<br/>spawn process"]
-        NPM["NPM Registry<br/>auto install"]
         FileSystem["File System<br/>readFile/existsSync"]
     end
     
@@ -59,7 +58,6 @@ graph TB
     Chat --> ExecuteCodex
     
     DecideCodex -->|which/where| CodexCLI
-    DecideCodex -->|npm install| NPM
     ExecuteCodex -->|spawn| CodexCLI
 ```
 
@@ -74,7 +72,6 @@ graph TB
 | Chat Parameter Schema   | chatツール用パラメータ検証スキーマ（82-100行）       |
 | StdioServerTransport    | 標準入出力によるMCP通信トランスポート                |
 | Codex CLI Binary        | `spawn()`で実行されるCodex CLI実行ファイル           |
-| NPM Registry            | `--allow-install`時のCodex CLI自動インストール       |
 
 ## 3. コンポーネント図（シーケンス図）
 
@@ -91,11 +88,11 @@ sequenceDiagram
     participant NPM as NPM
     
     Client->>Server: call chat(args)
-    Server->>Chat: chat(args, allowInstall)
+    Server->>Chat: chat(args)
     Chat->>Chat: ChatParametersSchema.parse(args)
     Note over Chat: Zod validation
     
-    Chat->>DecideCodex: decideCodexCliCommand(allowInstall)
+    Chat->>DecideCodex: decideCodexCliCommand()
     
     alt Platform check
         DecideCodex->>CLI: spawn(which/where, ["codex"])
@@ -103,9 +100,7 @@ sequenceDiagram
         
         alt Codex found (code=0)
             DecideCodex-->>Chat: {command: "codex", initialArgs: []}
-        else Codex not found & allowInstall
-            DecideCodex-->>Chat: {command: "npm", initialArgs: ["install", "-g", "@openai/codex"]}
-        else Codex not found & !allowInstall
+        else Codex not found
             DecideCodex-->>Chat: throw Error("codex not found")
             Chat-->>Server: Error
             Server-->>Client: Error response
@@ -156,10 +151,7 @@ sequenceDiagram
     participant Transport as StdioServerTransport
     participant Chat as chat()
     
-    Main->>Main: parseArgs(process.argv)
-    Note over Main: Check for --allow-install flag
-    
-    Main->>Detector: decideCodexCliCommand(allowInstall)
+    Main->>Detector: decideCodexCliCommand()
     
     alt Platform is Windows
         Detector->>Detector: spawn("where", ["codex"])
@@ -169,9 +161,7 @@ sequenceDiagram
     
     alt Command found
         Detector-->>Main: {command: "codex", initialArgs: []}
-    else Command not found & allowInstall
-        Detector-->>Main: {command: "npm", initialArgs: ["install", "-g", "@openai/codex"]}
-    else Command not found & !allowInstall
+    else Command not found
         Detector-->>Main: Error: Codex not found
         Main->>Main: console.error() & exit(1)
     end
@@ -179,7 +169,7 @@ sequenceDiagram
     Main->>Server: new McpServer({name: "mcp-codex-cli", version: "0.1.0"})
     
     Main->>Server: server.registerTool("chat", schema, handler)
-    Note over Main: Handler: (args) => chat(args, allowInstall)
+    Note over Main: Handler: (args) => chat(args)
     
     Main->>Transport: new StdioServerTransport()
     Main->>Server: server.connect(transport)

@@ -7,9 +7,10 @@ import { z } from "zod";
 const DEFAULT_MODEL = "gpt-5";
 
 // Function to determine the codex-cli command and its initial arguments
-export async function decideCodexCliCommand(
-  allowInstall: boolean,
-): Promise<{ command: string; initialArgs: string[] }> {
+export async function decideCodexCliCommand(): Promise<{
+  command: string;
+  initialArgs: string[];
+}> {
   return new Promise((resolve, reject) => {
     const isWindows = process.platform === "win32";
     const whichCmd = isWindows ? "where" : "which";
@@ -17,16 +18,9 @@ export async function decideCodexCliCommand(
     child.on("close", (code) => {
       if (code === 0) {
         resolve({ command: "codex", initialArgs: [] });
-      } else if (allowInstall) {
-        resolve({
-          command: "npm",
-          initialArgs: ["install", "-g", "@openai/codex"],
-        });
       } else {
         reject(
-          new Error(
-            "codex not found globally and --allow-install option not specified.",
-          ),
+          new Error("codex not found globally. Please install Codex CLI."),
         );
       }
     });
@@ -98,9 +92,9 @@ export const ChatParametersSchema = z.object({
 });
 
 // Tool execution functions
-export async function chat(args: unknown, allowInstall = false) {
+export async function chat(args: unknown) {
   const parsedArgs = ChatParametersSchema.parse(args);
-  const codexCliCmd = await decideCodexCliCommand(allowInstall);
+  const codexCliCmd = await decideCodexCliCommand();
 
   const cliArgs: string[] = [];
 
@@ -136,18 +130,15 @@ export async function chat(args: unknown, allowInstall = false) {
 }
 
 async function main() {
-  // Check for --allow-install argument
-  const allowInstall = process.argv.includes("--allow-install");
-
   // Check if codex-cli is available at startup
   try {
-    await decideCodexCliCommand(allowInstall);
+    await decideCodexCliCommand();
   } catch (error) {
     console.error(
       `Error: ${error instanceof Error ? error.message : String(error)}`,
     );
     console.error(
-      "Please install codex-cli globally or use --allow-install option.",
+      "Please install codex-cli globally using: npm install -g @openai/codex",
     );
     process.exit(1);
   }
@@ -184,7 +175,7 @@ async function main() {
       },
     },
     async (args) => {
-      const result = await chat(args, allowInstall);
+      const result = await chat(args);
       return {
         content: [
           {

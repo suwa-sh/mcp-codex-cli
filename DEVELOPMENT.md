@@ -124,7 +124,7 @@ npm info mcp-codex-cli
 
 ```bash
 # インストールテスト
-npx mcp-codex-cli@latest --allow-install
+npx mcp-codex-cli@latest
 
 # MCPクライアントでの動作確認
 # Claude Desktop等での統合テスト
@@ -147,7 +147,7 @@ GitHub Releasesでリリースノートを作成：
 
 | 問題 | 原因 | 解決方法 |
 |------|------|----------|
-| "codex not found" エラー | Codex CLI未インストール | `--allow-install`フラグ使用 |
+| "codex not found" エラー | Codex CLI未インストール | Codex CLI を手動インストール |
 | 認証エラー | OpenAI認証未設定 | `OPENAI_API_KEY`設定または`codex auth login` |
 | ビルドエラー | TypeScript型エラー | `npx tsc --noEmit`で詳細確認 |
 | 統合テスト失敗 | Codex CLI認証/設定問題 | `codex auth login`で認証確認 |
@@ -160,14 +160,46 @@ GitHub Releasesでリリースノートを作成：
 # 開発モードでのデバッグ
 npm run dev
 
+# chatツールの動作確認（テストスクリプト使用）
+node --import tsx test-dev.js
+
 # Codex CLI直接テスト
-codex "Hello World"
+codex -m gpt-5 exec "Hello World"
 
 # MCP通信ログ確認（クライアント側）
 # Claude Desktop: Developer Tools → Console
 
 # Node.jsデバッグ
 node --inspect dist/index.js
+```
+
+### test-dev.js 使用方法
+
+開発中のchatツールを直接テストするスクリプト：
+
+```bash
+# 基本的な実行
+node --import tsx test-dev.js
+
+# プロンプトやパラメータをカスタマイズする場合は、
+# test-dev.js を編集して実行
+```
+
+test-dev.js の内容例：
+```javascript
+import { chat } from './index.js';
+
+async function testChat() {
+  const result = await chat({
+    prompt: "Hello World と表示するシンプルな関数を作成",
+    approvalLevel: "auto-edit",
+    model: "gpt-5"
+  }, true);
+  
+  console.log('✅ Result:', result);
+}
+
+testChat();
 ```
 
 ## 関連ドキュメント

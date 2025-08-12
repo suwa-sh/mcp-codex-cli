@@ -38,3 +38,8 @@ temp/
 # Test coverage
 coverage/
 .nyc_output/
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
+
+.claude/settings.local.json
