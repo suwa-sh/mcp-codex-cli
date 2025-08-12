@@ -1,0 +1,60 @@
+{
+  "name": "mcp-codex-cli",
+  "version": "0.1.0",
+  "description": "MCP server wrapper for OpenAI's Codex CLI",
+  "author": "suwa-sh",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "mcp-codex-cli": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "codex",
+    "codex-cli",
+    "openai",
+    "ai",
+    "llm",
+    "code-generation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/suwa-sh/mcp-codex-cli"
+  },
+  "bugs": {
+    "url": "https://github.com/suwa-sh/mcp-codex-cli/issues"
+  },
+  "homepage": "https://github.com/suwa-sh/mcp-codex-cli#readme",
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "scripts": {
+    "start": "node --import tsx index.ts",
+    "dev": "node --import tsx --watch index.ts",
+    "build": "tsc --build && echo '#!/usr/bin/env node' > dist/index.js.tmp && cat dist/index.js >> dist/index.js.tmp && mv dist/index.js.tmp dist/index.js && chmod +x dist/index.js",
+    "build:prod": "tsc --build && echo '#!/usr/bin/env node' > dist/index.js.tmp && cat dist/index.js >> dist/index.js.tmp && mv dist/index.js.tmp dist/index.js && chmod +x dist/index.js",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "node --import tsx --test tests/unit/**/*.test.ts",
+    "test:integration": "node --import tsx --test tests/integration/**/*.test.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.1",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.5",
+    "@types/node": "latest",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
