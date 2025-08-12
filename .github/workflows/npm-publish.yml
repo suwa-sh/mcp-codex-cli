@@ -60,27 +60,3 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       
-      - name: Create GitHub Release
-        if: steps.version_check.outputs.should_publish == 'true'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          tag_name: v${{steps.version_check.outputs.version}}
-          release_name: Release v${{steps.version_check.outputs.version}}
-          body: |
-            ## 🎉 New Release: v${{steps.version_check.outputs.version}}
-            
-            ### Installation
-            ```bash
-            npm install -g mcp-codex-cli@${{steps.version_check.outputs.version}}
-            ```
-            
-            ### Usage with Claude Desktop
-            ```bash
-            npx mcp-codex-cli@${{steps.version_check.outputs.version}} --allow-install
-            ```
-            
-            See [npm package](https://www.npmjs.com/package/mcp-codex-cli) for details.
-          draft: false
-          prerelease: false
