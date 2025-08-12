@@ -1,5 +1,8 @@
 # MCP Codex CLI
 
+[![npm version](https://badge.fury.io/js/mcp-codex-cli.svg)](https://www.npmjs.com/package/mcp-codex-cli)
+[![Publish to npm](https://github.com/suwa-sh/mcp-codex-cli/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/suwa-sh/mcp-codex-cli/actions/workflows/npm-publish.yml)
+
 OpenAI の Codex CLI のシンプルな MCP サーバーラッパーです。AI アシスタントが Model Context Protocol を通じて Codex のコーディング機能を使用できるようにします。
 
 **特徴:**
