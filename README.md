@@ -16,10 +16,6 @@ OpenAI の Codex CLI のシンプルな MCP サーバーラッパーです。AI 
 ### 1. Add the MCP server
 
 ```bash
-# Codex CLI がローカルにインストールされている場合
-claude mcp add -s project codex-cli -- npx mcp-codex-cli
-
-# Codex CLI をnpx経由で使用する場合（推奨）
 claude mcp add -s project codex-cli -- npx mcp-codex-cli --allow-npx
 ```
 
@@ -27,46 +23,12 @@ claude mcp add -s project codex-cli -- npx mcp-codex-cli --allow-npx
 
 ### Option 1: NPX with allow-npx flag (推奨)
 
-Codex CLI をローカルにインストールする必要なし：
-
 ```json
 {
   "mcpServers": {
     "mcp-codex-cli": {
       "command": "npx",
       "args": ["mcp-codex-cli", "--allow-npx"]
-    }
-  }
-}
-```
-
-### Option 2: Global installation
-
-```bash
-# Codex CLI をグローバルインストール
-npm install -g @openai/codex
-
-# Claude Desktop設定
-{
-  "mcpServers": {
-    "mcp-codex-cli": {
-      "command": "npx",
-      "args": ["mcp-codex-cli"]
-    }
-  }
-}
-```
-
-### Option 3: Local project installation
-
-```bash
-npm install -g mcp-codex-cli
-
-{
-  "mcpServers": {
-    "mcp-codex-cli": {
-      "command": "mcp-codex-cli",
-      "args": ["--allow-npx"]
     }
   }
 }
