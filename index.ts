@@ -6,8 +6,13 @@ import { z } from "zod";
 // Default model for Codex CLI
 const DEFAULT_MODEL = "gpt-5";
 
+// Global flag to track --allow-npx option
+let ALLOW_NPX = false;
+
 // Function to determine the codex-cli command and its initial arguments
-export async function decideCodexCliCommand(): Promise<{
+export async function decideCodexCliCommand(
+  allowNpx: boolean = false,
+): Promise<{
   command: string;
   initialArgs: string[];
 }> {
@@ -18,9 +23,17 @@ export async function decideCodexCliCommand(): Promise<{
     child.on("close", (code) => {
       if (code === 0) {
         resolve({ command: "codex", initialArgs: [] });
+      } else if (allowNpx) {
+        // Use npx to run codex CLI when not found locally
+        resolve({
+          command: "npx",
+          initialArgs: ["@openai/codex"],
+        });
       } else {
         reject(
-          new Error("codex not found globally. Please install Codex CLI."),
+          new Error(
+            "codex not found globally and --allow-npx option not specified.",
+          ),
         );
       }
     });
@@ -36,6 +49,9 @@ export async function executeCodexCli(
   args: string[],
 ): Promise<string> {
   const { command, initialArgs } = codexCliCommand;
+
+  // Note: codex-not-found case is no longer used since we now use npx directly
+
   const commandArgs = [...initialArgs, ...args];
 
   return new Promise((resolve, reject) => {
@@ -74,7 +90,7 @@ export async function executeCodexCli(
 export const ChatParametersSchema = z.object({
   prompt: z.string().describe("The task description to execute."),
   approvalLevel: z
-    .enum(["auto-edit", "full-auto"])
+    .string()
     .optional()
     .describe(
       "Approval level: auto-edit (read/write files, requires approval for commands), full-auto (fully autonomous). Default: auto-edit.",
@@ -95,15 +111,18 @@ export const ChatParametersSchema = z.object({
 export async function chat(args: unknown) {
   const parsedArgs = ChatParametersSchema.parse(args);
 
-  // Check if codex-cli is available at runtime
-  let codexCliCmd: { command: string; initialArgs: string[] };
-  try {
-    codexCliCmd = await decideCodexCliCommand();
-  } catch (error) {
+  // Validate approvalLevel if provided
+  if (
+    parsedArgs.approvalLevel &&
+    !["auto-edit", "full-auto"].includes(parsedArgs.approvalLevel)
+  ) {
     throw new Error(
-      `Codex CLI is not installed or not found in PATH. Please install it using: npm install -g @openai/codex. Error: ${error instanceof Error ? error.message : String(error)}`,
+      `Invalid approvalLevel: ${parsedArgs.approvalLevel}. Must be "auto-edit" or "full-auto".`,
     );
   }
+
+  // Use the same allowNpx setting as startup
+  const codexCliCmd = await decideCodexCliCommand(ALLOW_NPX);
 
   const cliArgs: string[] = [];
 
@@ -126,6 +145,9 @@ export async function chat(args: unknown) {
   // Always use exec mode for non-interactive execution
   cliArgs.push("exec");
 
+  // Add skip git repo check for untrusted directories (needed for npx execution)
+  cliArgs.push("--skip-git-repo-check");
+
   // Add the prompt at the end
   cliArgs.push(parsedArgs.prompt);
 
@@ -139,9 +161,25 @@ export async function chat(args: unknown) {
 }
 
 async function main() {
+  // Check for --allow-npx argument
+  ALLOW_NPX = process.argv.includes("--allow-npx");
+
+  // Check if codex-cli is available at startup
+  try {
+    await decideCodexCliCommand(ALLOW_NPX);
+  } catch (error) {
+    console.error(
+      `Error: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    console.error(
+      "Please install codex-cli globally using: npm install -g @openai/codex",
+    );
+    process.exit(1);
+  }
+
   const server = new McpServer({
     name: "mcp-codex-cli",
-    version: "0.1.0",
+    version: "1.0.0",
   });
 
   // Register chat tool
@@ -153,7 +191,7 @@ async function main() {
       inputSchema: {
         prompt: z.string().describe("The task description to execute."),
         approvalLevel: z
-          .enum(["auto-edit", "full-auto"])
+          .string()
           .optional()
           .describe(
             "Approval level: auto-edit (read/write files, requires approval for commands), full-auto (fully autonomous). Default: auto-edit.",
@@ -171,27 +209,15 @@ async function main() {
       },
     },
     async (args) => {
-      try {
-        const result = await chat(args);
-        return {
-          content: [
-            {
-              type: "text",
-              text: result,
-            },
-          ],
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
-            },
-          ],
-          isError: true,
-        };
-      }
+      const result = await chat(args);
+      return {
+        content: [
+          {
+            type: "text",
+            text: result,
+          },
+        ],
+      };
     },
   );
 
@@ -201,6 +227,10 @@ async function main() {
 }
 
 // Only run main if this file is being executed directly
-if (import.meta.main) {
-  main().catch(console.error);
+// For NPX execution, import.meta.main might be undefined, so we'll always run main
+if (import.meta.main !== false) {
+  main().catch((error) => {
+    console.error("Fatal error:", error);
+    process.exit(1);
+  });
 }

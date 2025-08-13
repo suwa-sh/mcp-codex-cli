@@ -1,6 +1,6 @@
 {
   "name": "mcp-codex-cli",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "MCP server wrapper for OpenAI's Codex CLI",
   "author": "suwa-sh",
   "license": "MIT",

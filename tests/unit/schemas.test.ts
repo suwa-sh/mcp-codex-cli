@@ -64,19 +64,6 @@ describe("Zodスキーマ検証テスト", () => {
       );
     });
 
-    test("無効なapprovalLevelが指定された場合、パースエラーが発生すること", () => {
-      // Given: 無効なapprovalLevelを指定して
-      const invalidParams = {
-        prompt: "テスト",
-        approvalLevel: "suggest", // 廃止されたオプション
-      };
-
-      // When & Then: パースエラーが発生すること
-      assert.throws(
-        () => ChatParametersSchema.parse(invalidParams),
-        /Invalid enum value/,
-        "無効なapprovalLevelの場合、適切なエラーが発生すること",
-      );
-    });
+    // Note: approvalLevel validation is now handled at runtime in chat() function, not at Zod schema level
   });
 });

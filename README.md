@@ -5,37 +5,68 @@
 
 OpenAI の Codex CLI のシンプルな MCP サーバーラッパーです。AI アシスタントが Model Context Protocol を通じて Codex の機能を使用できるようにします。
 
-## 特徴
-
-- 非インタラクティブ（exec）モードのみ対応で、MCP 環境に最適化
-- シンプルな1つのチャットツールを提供
-- TypeScript + Zod によるスキーマ検証
-- 高速・軽量なテスト構成
-
 ## 前提条件
 
-- [OpenAI Codex CLI](https://github.com/openai/codex-cli) がインストール・設定済み
 - OpenAI API キーまたは ChatGPT Plus/Pro/Team アカウント
 - Node.js 22+（Codex CLI の要件）
+- `--allow-npx` オプションで、Codex CLI をローカルにインストールせずに利用できます
 
 ## 🚀 Quick Start with Claude Code
 
 ### 1. Add the MCP server
 
 ```bash
+# Codex CLI がローカルにインストールされている場合
 claude mcp add -s project codex-cli -- npx mcp-codex-cli
+
+# Codex CLI をnpx経由で使用する場合（推奨）
+claude mcp add -s project codex-cli -- npx mcp-codex-cli --allow-npx
 ```
 
 ## 🔧 Installation Options
 
-### Using npx
+### Option 1: NPX with allow-npx flag (推奨)
+
+Codex CLI をローカルにインストールする必要なし：
 
 ```json
 {
   "mcpServers": {
     "mcp-codex-cli": {
       "command": "npx",
+      "args": ["mcp-codex-cli", "--allow-npx"]
+    }
+  }
+}
+```
+
+### Option 2: Global installation
+
+```bash
+# Codex CLI をグローバルインストール
+npm install -g @openai/codex
+
+# Claude Desktop設定
+{
+  "mcpServers": {
+    "mcp-codex-cli": {
+      "command": "npx",
       "args": ["mcp-codex-cli"]
+    }
+  }
+}
+```
+
+### Option 3: Local project installation
+
+```bash
+npm install -g mcp-codex-cli
+
+{
+  "mcpServers": {
+    "mcp-codex-cli": {
+      "command": "mcp-codex-cli",
+      "args": ["--allow-npx"]
     }
   }
 }
@@ -93,9 +124,20 @@ Codex CLI の認証を設定：
 # オプション1：OpenAI API キー
 export OPENAI_API_KEY=your_api_key_here
 
-# オプション2：ChatGPT アカウントを使用（codex-cli でサインイン）
+# オプション2：ChatGPT アカウントを使用
+# --allow-npx使用時は初回実行時に自動でサインインプロンプトが表示されます
+# ローカルインストール時は以下を実行:
 codex auth login
 ```
+
+### --allow-npx オプション
+
+`--allow-npx` フラグを使用すると：
+
+- Codex CLI をローカルにインストールする必要がありません
+- 自動的に `npx @openai/codex` を使用して実行します
+- 信頼されていないディレクトリでも動作します（`--skip-git-repo-check` を自動追加）
+- 常に最新バージョンのCodex CLIを使用できます
 
 ### Default Model
 
@@ -112,7 +154,32 @@ codex auth login
 - **auto-edit**：ファイルの読み取りと書き込み；シェルコマンドには承認が必要（デフォルト）
 - **full-auto**：完全に自動実行（注意して使用）
 
+## 🚨 トラブルシューティング
+
+### "Not inside a trusted directory" エラー
+
+`--allow-npx` オプションを使用していればこのエラーは自動的に回避されます。手動で解決する場合：
+
+```bash
+# 信頼できるディレクトリとしてマーク
+codex trust .
+
+# または--skip-git-repo-checkを使用
+codex --skip-git-repo-check exec "your task"
+```
+
+### 認証エラー
+
+```bash
+# OpenAI API キーを設定
+export OPENAI_API_KEY=your_api_key_here
+
+# またはChatGPTアカウントでログイン
+codex auth login
+```
+
 ## 🔗 Related Links
 
 - [Model Context Protocol（MCP）](https://modelcontextprotocol.io/)
 - [OpenAI Codex CLI](https://github.com/openai/codex-cli)
+- [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)
