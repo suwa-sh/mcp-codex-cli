@@ -13,6 +13,7 @@ async function testChat() {
           "typescriptで、Hello World と表示するシンプルな関数を作成してください",
         approvalLevel: "auto-edit",
         model: "gpt-5",
+        reasoningEffort: "high",
       },
       true,
     );
