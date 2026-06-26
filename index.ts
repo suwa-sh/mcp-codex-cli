@@ -105,6 +105,12 @@ export const ChatParametersSchema = z.object({
     .string()
     .optional()
     .describe("The working directory for the task execution."),
+  reasoningEffort: z
+    .enum(["low", "medium", "high", "none"])
+    .optional()
+    .describe(
+      'Model reasoning effort ("low" | "medium" | "high" | "none"). Passed via --config model_reasoning_effort.',
+    ),
 });
 
 // Tool execution functions
@@ -140,6 +146,12 @@ export async function chat(args: unknown) {
     case "full-auto":
       cliArgs.push("--full-auto");
       break;
+  }
+
+  // reasoning effort -> --config model_reasoning_effort=<value>
+  if (parsedArgs.reasoningEffort) {
+    // `--config` has short form `-c`; either works
+    cliArgs.push("-c", `model_reasoning_effort=${parsedArgs.reasoningEffort}`);
   }
 
   // Always use exec mode for non-interactive execution
@@ -206,6 +218,10 @@ async function main() {
           .string()
           .optional()
           .describe("The working directory for the task execution."),
+        reasoningEffort: z
+          .enum(["low", "medium", "high", "none"])
+          .optional()
+          .describe("Passes through as --config model_reasoning_effort."),
       },
     },
     async (args) => {
