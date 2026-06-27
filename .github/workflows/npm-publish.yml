@@ -11,7 +11,6 @@ on:
       - '.github/workflows/npm-publish.yml'
       - '!**/*.md'
       - '!**/*.test.ts'
-  workflow_dispatch:
 
 jobs:
   publish:
