@@ -1,6 +1,6 @@
 {
   "name": "mcp-codex-cli",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "MCP server wrapper for OpenAI's Codex CLI",
   "author": "suwa-sh",
   "license": "MIT",
@@ -48,7 +48,7 @@
     "test:integration": "node --import tsx --test tests/integration/**/*.test.ts"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.13.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^3.25.67"
   },
   "devDependencies": {
