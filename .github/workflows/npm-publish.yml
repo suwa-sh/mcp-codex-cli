@@ -8,8 +8,10 @@ on:
       - 'package.json'
       - 'index.ts'
       - 'src/**'
+      - '.github/workflows/npm-publish.yml'
       - '!**/*.md'
       - '!**/*.test.ts'
+  workflow_dispatch:
 
 jobs:
   publish:
