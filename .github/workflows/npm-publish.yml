@@ -40,11 +40,37 @@ jobs:
       - name: Check version and publish
         id: version_check
         run: |
-          # Get the current version from package.json
           LOCAL_VERSION=$(node -p "require('./package.json').version")
           echo "Local version: $LOCAL_VERSION"
-          
-          # Check if this version is already published
+
+          LATEST_VERSION=$(npm view mcp-codex-cli version 2>/dev/null || echo "")
+          echo "Latest published version: ${LATEST_VERSION:-<none>}"
+
+          # Guard against downgrade publish (npm registry rejects it with 404)
+          if [ -n "$LATEST_VERSION" ]; then
+            HIGHER=$(LOCAL="$LOCAL_VERSION" LATEST="$LATEST_VERSION" node -e '
+              const parse = (v) => {
+                const m = String(v).match(/^(\d+)\.(\d+)\.(\d+)$/);
+                if (!m) { console.error("Invalid semver:", v); process.exit(2); }
+                return [Number(m[1]), Number(m[2]), Number(m[3])];
+              };
+              const [la, lb, lc] = parse(process.env.LOCAL);
+              const [ra, rb, rc] = parse(process.env.LATEST);
+              const cmp = la - ra || lb - rb || lc - rc;
+              console.log(cmp > 0 ? "yes" : (cmp === 0 ? "equal" : "no"));
+            ')
+            if [ "$HIGHER" = "no" ]; then
+              echo "::error::Local version $LOCAL_VERSION is lower than published $LATEST_VERSION. Refusing to downgrade."
+              exit 1
+            fi
+            if [ "$HIGHER" = "equal" ]; then
+              echo "Version $LOCAL_VERSION is already published to npm"
+              echo "should_publish=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
+          # Defensive check: a version may have existed historically even if not "latest"
           if npm view mcp-codex-cli@$LOCAL_VERSION version 2>/dev/null; then
             echo "Version $LOCAL_VERSION is already published to npm"
             echo "should_publish=false" >> $GITHUB_OUTPUT
