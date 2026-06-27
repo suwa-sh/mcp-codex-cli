@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { spawn } from "node:child_process";
-import { z } from "zod";
+import { z } from "zod/v3";
 
 // Default model for Codex CLI
 const DEFAULT_MODEL = "gpt-5";
