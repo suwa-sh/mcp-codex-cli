@@ -55,6 +55,6 @@
     "@biomejs/biome": "^2.0.5",
     "@types/node": "latest",
     "tsx": "^4.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^6.0.3"
   }
 }
