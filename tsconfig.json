@@ -14,8 +14,7 @@
     "sourceMap": true,
 
     // Module resolution
-    "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
+    "moduleResolution": "bundler",
     "types": ["node"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
