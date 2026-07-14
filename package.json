@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/suwa-sh/mcp-codex-cli#readme",
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^7"
   },
   "scripts": {
     "start": "node --import tsx index.ts",
