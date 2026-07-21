@@ -47,6 +47,10 @@
     "test:unit": "node --import tsx --test tests/unit/**/*.test.ts",
     "test:integration": "node --import tsx --test tests/integration/**/*.test.ts"
   },
+  "overrides": {
+    "@hono/node-server": "^2.0.10",
+    "fast-uri": "3.1.4"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^4.4.3"
